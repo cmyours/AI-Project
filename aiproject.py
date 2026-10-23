@@ -130,17 +130,6 @@ PREFERRED_LORA_ADAPTER_PATH = LORA_ROOT_PATH
 
 LATEST_LORA_PATH_FILES = []
 
-# 마지막으로 잘 됐던 Bllossom adapter 경로.
-# 이 경로가 없으면 아래 자동 감지 로직이 latest 파일/최신 adapter_config.json을 찾음
-PREFERRED_LORA_ADAPTER_PATH = (
-    "/content/drive/MyDrive/AIProject/"
-    "blossom_LoRA"
-)
-
-LATEST_LORA_PATH_FILES = [
-    "/content/drive/MyDrive/AIProject/latest_lora_path.txt",
-    "/content/drive/MyDrive/AIProject/latest_bllossom_lora_path.txt",
-]
 
 USE_4BIT = True
 MAX_NEW_TOKENS = 256

@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 # ==================================================
 
 
-API_KEY = "GEMINI_API_KEY"
+API_KEY = os.environ["GEMINI_API_KEY"]
 
 MODEL_NAME = "gemini-2.5-flash"
 
