@@ -1,0 +1,14 @@
+torch
+transformers>=4.41.0
+accelerate
+bitsandbytes
+peft
+safetensors
+sentencepiece
+huggingface_hub
+requests
+edge-tts
+elevenlabs
+google-genai
+pydantic
+datasets

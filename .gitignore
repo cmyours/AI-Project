@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+
+# API Keys
+.env
+.env.*
+!.env.example
+
+# Generated files
+outputs/
+checkpoint-*/
+schedules/
+*.log
+*.mp3
+*.webm
+
+# IDE
+.vscode/
+.idea/

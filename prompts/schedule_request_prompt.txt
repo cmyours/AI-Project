@@ -1,0 +1,476 @@
+[Dataset Category]
+
+Schedule Response Dataset
+
+[Purpose]
+
+Generate training data for a Korean casual AI assistant that explains saved schedule lookup results naturally.
+
+This dataset is used AFTER the schedule list tool has already returned stored schedule data.
+
+The assistant must read:
+
+1. The user's original schedule lookup question
+2. The schedule lookup result
+
+Then the assistant must answer naturally based only on the provided schedule lookup result.
+
+This dataset is NOT for deciding whether to call the schedule tool.
+
+This dataset is NOT for saving schedules.
+
+This dataset is for generating the final user-facing response after LIST_SCHEDULE has already executed.
+
+---
+
+[Output Format]
+
+Return only a valid JSON object.
+
+The JSON object must have exactly this structure:
+
+{
+"dataset": [
+{
+"instruction": "...",
+"output": "...",
+"action_required": false,
+"action_trigger": "NONE",
+"action_argument": ""
+}
+]
+}
+
+Do not return a raw JSON array.
+Do not include markdown.
+Do not include explanations.
+Do not include code fences.
+
+---
+
+[Instruction Format]
+
+Each instruction must contain both:
+
+1. 사용자 질문
+2. 일정 조회 결과
+
+Use this exact format:
+
+사용자 질문: ...
+일정 조회 결과: ...
+
+Examples:
+
+사용자 질문: 나 내일 약속 있었나?
+일정 조회 결과: 범위=2026-06-18, 카테고리=약속, 일정=2026-06-18 16:00 약속
+
+사용자 질문: 오늘 일정 뭐 있어?
+일정 조회 결과: 범위=2026-06-17, 일정=없음
+
+사용자 질문: 이번 주 회의 일정 알려줘.
+일정 조회 결과: 범위=2026-06-17~2026-06-23, 카테고리=회의, 일정=2026-06-18 10:00 팀 회의 | 2026-06-20 14:00 고객 미팅
+
+---
+
+[Assistant Persona]
+
+The assistant is:
+
+* a friendly Korean AI assistant
+* speaks Korean casual speech only
+* warm, relaxed, and practical
+* like a close friend who helps manage schedules
+* concise and natural
+* not robotic
+
+The assistant should sound natural when read aloud.
+
+---
+
+[Strict Korean Tone Rules]
+
+Use Korean casual speech only.
+
+Forbidden polite or formal endings:
+
+* ~요
+* ~습니다
+* ~습니까
+* ~세요
+* ~드립니다
+* ~해드릴게요
+* ~알려드릴게요
+* ~확인해드릴게요
+
+Good casual endings:
+
+* ~야
+* ~있어
+* ~없어
+* ~잡혀 있어
+* ~되어 있어
+* ~보여
+* ~확인됐어
+* ~챙기면 되겠다
+
+---
+
+[Action Rules]
+
+Every sample must use:
+
+"action_required": false
+"action_trigger": "NONE"
+"action_argument": ""
+
+Never use LIST_SCHEDULE in this dataset.
+
+The schedule lookup tool has already returned data.
+
+Never use ADD_SCHEDULE in this dataset.
+
+---
+
+[Core Response Rules]
+
+The assistant must:
+
+1. Answer the user's actual lookup question.
+2. Use only the provided schedule lookup result.
+3. Never invent schedules.
+4. Never say it will check schedules.
+5. Never mention tool, API, function, server, JSON, system, dataset, action, trigger, or raw result.
+6. Never repeat "일정 조회 결과".
+7. Never expose raw fields like "범위=", "카테고리=", "일정=".
+8. Be concise.
+9. Format schedules naturally for a human.
+
+---
+
+[No Schedule Found Rules]
+
+If the lookup result says:
+
+일정=없음
+
+Then answer naturally.
+
+Good outputs:
+
+* 내일 저장된 약속 일정은 없어.
+* 오늘은 저장된 일정이 없어.
+* 이번 주에 저장된 회의 일정은 없어.
+* 다음 달 병원 일정은 따로 저장된 게 없어.
+* 지금 저장된 운동 일정은 없어.
+
+Bad outputs:
+
+* 일정 조회 결과에 따르면 일정이 없습니다.
+* 범위 2026-06-18에는 일정이 없어.
+* 데이터가 비어 있어.
+* 조회된 일정이 없습니다.
+
+---
+
+[Single Schedule Rules]
+
+If exactly one schedule exists, answer naturally.
+
+Good outputs:
+
+* 내일 오후 4시에 약속 하나 있어.
+* 오늘 오후 3시에 병원 진료가 있어.
+* 이번 주 금요일 저녁 7시에 가족 식사 일정이 있어.
+* 다음 달 5일에 건강검진 예약이 있어.
+* 저장된 운동 일정은 매주 수요일 저녁 7시 수영 강습이 있어.
+
+Bad outputs:
+
+* 6월 18일 16:00에 약속있는데, 해줄래 있어.
+* 2026-06-18 16:00 약속이라고 저장되어 있습니다.
+* 일정 하나 있어. 2026-06-18 16:00 약속 있어.
+* 약속있는데, 저장해줄래 일정이 있어.
+
+---
+
+[Multiple Schedule Rules]
+
+If multiple schedules exist, summarize them clearly.
+
+For 2 or 3 schedules, list all of them naturally.
+
+Good outputs:
+
+* 내일 일정은 두 개 있어. 오전 10시에 팀 회의, 오후 4시에 약속이야.
+* 이번 주 회의는 두 개 잡혀 있어. 목요일 오전 10시 팀 회의, 토요일 오후 2시 고객 미팅이야.
+* 오늘 할일은 세 개 있어. 오전 9시 서류 제출, 오후 3시 은행 업무, 저녁 7시 장보기야.
+
+For many schedules, summarize count first and show key items.
+
+Good outputs:
+
+* 이번 주 일정은 총 5개 있어. 먼저 내일 오전 10시 팀 회의, 금요일 저녁 7시 약속이 눈에 띄네.
+* 저장된 병원 일정은 4개 있어. 가장 가까운 건 내일 오후 3시 치과 예약이야.
+
+Do not generate overly long responses.
+
+---
+
+[Date and Time Naturalization Rules]
+
+Convert machine-style date/time into natural Korean.
+
+Examples:
+
+2026-06-18 16:00 → 6월 18일 오후 4시
+2026-06-18 09:30 → 6월 18일 오전 9시 30분
+2026-06-18 00:00 → 6월 18일 0시
+2026-06-18 with user asked "내일" → 내일
+2026-06-17 with user asked "오늘" → 오늘
+2026-06-18 with user asked "내일" → 내일
+2026-06-19 with user asked "모레" → 모레
+
+If the user used a relative date like 오늘, 내일, 모레, 이번 주, 다음 주, 이번 달, 다음 달, prefer that natural expression instead of repeating full ISO dates.
+
+Good:
+
+사용자 질문: 나 내일 약속 있었나?
+일정 조회 결과: 범위=2026-06-18, 카테고리=약속, 일정=2026-06-18 16:00 약속
+
+Output:
+내일 오후 4시에 약속 하나 있어.
+
+Bad:
+6월 18일 16:00에 약속 하나 있어.
+
+---
+
+[Title Cleanup Rules]
+
+Schedule titles may sometimes contain noisy fragments from the user's original request.
+
+The assistant must clean noisy titles before speaking.
+
+Remove or ignore fragments like:
+
+* 있는데
+* 있는데,
+* 있는데 저장
+* 저장해줘
+* 저장해줄래
+* 기록해줘
+* 메모해줘
+* 일정에 넣어줘
+* 해줄래
+* 해줘
+* 잡아놨어
+* 잡았어
+* 있어
+* 해야 해
+* 잊지 마
+* 잊지말
+* 하는 거
+* 할 거
+* 할일로 저장해줘
+
+Examples:
+
+Raw title:
+약속있는데, 해줄래
+
+Good spoken title:
+약속
+
+Raw title:
+치과 예약 있는데 저장해줄래
+
+Good spoken title:
+치과 예약
+
+Raw title:
+친구랑 밥 먹는 거 저장해줄래
+
+Good spoken title:
+친구랑 밥
+
+Raw title:
+보고서 제출해야 해
+
+Good spoken title:
+보고서 제출
+
+If the title is too noisy or unnatural, fall back to the category.
+
+Examples:
+
+category=약속, title=약속있는데, 해줄래
+→ 약속
+
+category=병원, title=병원 가야 해
+→ 병원 일정
+
+category=할일, title=해야 해
+→ 할일
+
+---
+
+[Category-Aware Response Rules]
+
+Use category naturally when it helps.
+
+Categories:
+
+* 약속
+* 회의
+* 병원
+* 식사
+* 업무
+* 공부
+* 운동
+* 가족
+* 이동
+* 예약
+* 할일
+* 기타
+
+Examples:
+
+category=약속 → 약속
+category=회의 → 회의
+category=병원 → 병원 일정 / 병원 예약 / 진료
+category=식사 → 식사 약속
+category=업무 → 업무 일정
+category=공부 → 공부 일정
+category=운동 → 운동 일정
+category=가족 → 가족 일정
+category=이동 → 이동 일정
+category=예약 → 예약 일정
+category=할일 → 할일
+category=기타 → 일정
+
+If the title is already clear, use the title.
+If the title is noisy, use the category.
+
+---
+
+[Do Not Generate]
+
+Do not generate schedule saving examples.
+
+Bad user questions for this dataset:
+
+* 내일 오후 3시에 약속 저장해줘.
+* 모레 치과 예약 메모해줘.
+* 다음 주 회의 일정에 넣어줘.
+
+Those belong to schedule_request_dataset.
+
+This dataset must only contain lookup-result response examples, such as:
+
+* 내일 약속 있었나?
+* 오늘 일정 뭐 있어?
+* 이번 주 회의 알려줘.
+* 저장된 운동 일정 다 보여줘.
+* 다음 달 병원 일정 있어?
+* 전체 일정 보여줘.
+
+---
+
+[Scenario Distribution]
+
+Generate exactly 30 unique samples per batch.
+
+In each batch, include:
+
+* 8 no-schedule-found examples
+* 10 single-schedule examples
+* 8 multiple-schedule examples
+* 4 noisy-title-cleanup examples
+
+Include diverse date ranges:
+
+* 오늘
+* 내일
+* 모레
+* 이번 주
+* 다음 주
+* 이번 달
+* 다음 달
+* 전체
+
+Include diverse categories:
+
+* 약속
+* 회의
+* 병원
+* 식사
+* 업무
+* 공부
+* 운동
+* 가족
+* 예약
+* 할일
+
+---
+
+[Few-shot Examples]
+
+{
+"dataset": [
+{
+"instruction": "사용자 질문: 나 내일 약속 있었나?\n일정 조회 결과: 범위=2026-06-18, 카테고리=약속, 일정=2026-06-18 16:00 약속",
+"output": "내일 오후 4시에 약속 하나 있어.",
+"action_required": false,
+"action_trigger": "NONE",
+"action_argument": ""
+},
+{
+"instruction": "사용자 질문: 오늘 일정 뭐 있어?\n일정 조회 결과: 범위=2026-06-17, 일정=없음",
+"output": "오늘은 저장된 일정이 없어.",
+"action_required": false,
+"action_trigger": "NONE",
+"action_argument": ""
+},
+{
+"instruction": "사용자 질문: 내일 회의 일정 있어?\n일정 조회 결과: 범위=2026-06-18, 카테고리=회의, 일정=2026-06-18 10:00 팀 회의 | 2026-06-18 14:00 고객 미팅",
+"output": "내일 회의는 두 개 있어. 오전 10시에 팀 회의, 오후 2시에 고객 미팅이야.",
+"action_required": false,
+"action_trigger": "NONE",
+"action_argument": ""
+},
+{
+"instruction": "사용자 질문: 나 내일 약속 있었나?\n일정 조회 결과: 범위=2026-06-18, 카테고리=약속, 일정=2026-06-18 16:00 약속있는데, 해줄래",
+"output": "내일 오후 4시에 약속 하나 있어.",
+"action_required": false,
+"action_trigger": "NONE",
+"action_argument": ""
+},
+{
+"instruction": "사용자 질문: 이번 달 병원 예약 있어?\n일정 조회 결과: 범위=2026-06-01~2026-06-30, 카테고리=병원, 일정=2026-06-20 15:00 치과 예약 | 2026-06-25 10:00 건강검진",
+"output": "이번 달 병원 일정은 두 개 있어. 6월 20일 오후 3시에 치과 예약, 6월 25일 오전 10시에 건강검진이야.",
+"action_required": false,
+"action_trigger": "NONE",
+"action_argument": ""
+}
+]
+}
+
+---
+
+[Final Requirements]
+
+Return exactly 30 samples.
+
+Every sample must be unique.
+
+Every sample must use:
+
+"action_required": false
+"action_trigger": "NONE"
+"action_argument": ""
+
+Never include markdown.
+Never include explanations.
+Never include code fences.
+Return only valid JSON.
